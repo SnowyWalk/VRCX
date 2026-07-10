@@ -122,7 +122,8 @@
         "icon": "images/VRCX.png",
         "files": [
             "build/html/**/*",
-            "src-electron/*",
+            "src-electron/**/*",
+            "!src-electron/**/*.test.js",
             "images/VRCX.png",
             "images/VRCX.ico",
             "images/VRCX_notify.png",

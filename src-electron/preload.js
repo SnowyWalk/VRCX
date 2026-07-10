@@ -46,6 +46,7 @@ contextBridge.exposeInMainWorld('electron', {
     getArch: () => ipcRenderer.invoke('app:getArch'),
     getClipboardText: () => ipcRenderer.invoke('app:getClipboardText'),
     getNoUpdater: () => ipcRenderer.invoke('app:getNoUpdater'),
+    getRemoteAccessStatus: () => ipcRenderer.invoke('remote-access:getStatus'),
     setTrayIconNotification: (notify) =>
         ipcRenderer.invoke('app:setTrayIconNotification', notify),
     openFileDialog: () => ipcRenderer.invoke('dialog:openFile'),

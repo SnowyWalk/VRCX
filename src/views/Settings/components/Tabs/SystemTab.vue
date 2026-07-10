@@ -136,6 +136,8 @@
             </SettingsItem>
         </SettingsGroup>
 
+        <RemoteAccessStatus />
+
         <SettingsGroup :title="t('view.settings.general.contributors.header')">
             <div>
                 <img
@@ -185,6 +187,7 @@
 
     import SettingsGroup from '../SettingsGroup.vue';
     import SettingsItem from '../SettingsItem.vue';
+    import RemoteAccessStatus from '../RemoteAccessStatus.vue';
 
     const { t } = useI18n();
 

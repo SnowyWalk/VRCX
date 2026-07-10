@@ -16,7 +16,10 @@ export default defineConfig({
         globals: true,
         environment: 'jsdom',
         setupFiles: ['./vitest.setup.js'],
-        include: ['src/**/*.{test,spec}.js'],
+        include: [
+            'src/**/*.{test,spec}.js',
+            'src-electron/**/*.{test,spec}.js'
+        ],
         coverage: {
             reporter: ['text', 'text-summary'],
             exclude: [
