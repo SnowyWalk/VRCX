@@ -14,6 +14,12 @@ const {
 const { spawn, spawnSync } = require('child_process');
 const fs = require('fs');
 const https = require('https');
+const {
+    getRemoteAccessConfig,
+    getRemoteAccessStatus
+} = require('./remote-access/config');
+const { createRemoteCapabilities } = require('./remote-access/capabilities');
+const { startRemoteServer } = require('./remote-access/server');
 
 //app.disableHardwareAcceleration();
 
@@ -94,6 +100,8 @@ if (process.arch === 'arm64' && fs.existsSync(armPath)) {
 
 const InteropApi = require('./InteropApi');
 const interopApi = new InteropApi();
+let remoteAccessServer;
+let remoteAccessStatus = getRemoteAccessStatus();
 
 const OVERLAY_WRIST_FRAME_WIDTH = 512;
 const OVERLAY_WRIST_FRAME_HEIGHT = 512;
@@ -129,6 +137,36 @@ interopApi.getDotNetObject('AppApiVrElectron').Init();
 ipcMain.handle('callDotNetMethod', (event, className, methodName, args) => {
     return interopApi.callMethod(className, methodName, args);
 });
+
+async function startRemoteAccessIfEnabled() {
+    const config = getRemoteAccessConfig();
+    if (!config.enabled) return;
+    remoteAccessStatus = { ...remoteAccessStatus, state: 'starting' };
+    const capabilities = createRemoteCapabilities(interopApi);
+    remoteAccessServer = await startRemoteServer({
+        ...config,
+        assetRoot: path.join(rootDir, 'build/html'),
+        ...capabilities
+    });
+    remoteAccessStatus = {
+        ...remoteAccessStatus,
+        state: 'local-ready',
+        listener: `http://${config.host}:${config.port}`
+    };
+    const serve = spawnSync('tailscale', ['serve', 'status', '--json'], {
+        encoding: 'utf8',
+        timeout: 3000,
+        windowsHide: true
+    });
+    const expectedTarget = `127.0.0.1:${config.port}`;
+    remoteAccessStatus.tailnetState = serve.error
+        ? 'unavailable'
+        : serve.status === 0 && serve.stdout.includes(expectedTarget)
+          ? config.tailnetUrl
+              ? 'ready'
+              : 'url-missing'
+          : 'misconfigured';
+}
 
 /** @type {Electron.CrossProcessExports.BrowserWindow} */
 let mainWindow = undefined;
@@ -278,6 +316,8 @@ ipcMain.handle('app:getClipboardText', () => {
 ipcMain.handle('app:getNoUpdater', () => {
     return noUpdater;
 });
+
+ipcMain.handle('remote-access:getStatus', () => remoteAccessStatus);
 
 ipcMain.handle('app:setTrayIconNotification', (event, notify) => {
     setTrayIconNotification(notify);
@@ -906,7 +946,11 @@ function applyWindowState() {
     }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+    await startRemoteAccessIfEnabled().catch((error) => {
+        remoteAccessStatus = { ...remoteAccessStatus, state: 'error' };
+        console.error('Unable to start VRCX remote access', error);
+    });
     createWindow();
     createTray();
     installVRCX();
@@ -922,6 +966,8 @@ app.whenReady().then(() => {
         }
     });
 });
+
+app.on('before-quit', () => remoteAccessServer?.close());
 
 function disposeOverlay() {
     if (!isOverlayActive) {
