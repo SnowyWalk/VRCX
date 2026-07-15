@@ -1614,6 +1614,18 @@
             },
             "json": {
                 "header": "原始 JSON 信息"
+            },
+            "photos": {
+                "header": "Photos",
+                "count": "{count} indexed photos",
+                "indexing": "Indexing photos… {processed} / {discovered}",
+                "empty": "No PNG photos with this exact world ID were found.",
+                "error": "The indexed photos could not be loaded.",
+                "retry": "Retry",
+                "refresh": "Refresh",
+                "rebuild": "Rebuild index",
+                "rebuild_confirm": "Rebuild the complete photo index? This may take a while for large libraries.",
+                "open_hint": "Double-click to open this photo"
             }
         },
         "avatar": {

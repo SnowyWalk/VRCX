@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -11,8 +12,66 @@ namespace VRCX;
 
 public partial class AppApi
 {
+    private const int MaximumWorldPhotoThumbnailRequestJsonLength = 8192;
+    private const int MaximumWorldPhotoThumbnailRequestCount = 100;
     [GeneratedRegex(@"\\Prints\\|\\Stickers\\|\\Emoji\\", RegexOptions.IgnoreCase, "en-US")]
     private static partial Regex ScreenshotRegex();
+
+    private static readonly JsonSerializerSettings WorldPhotoJsonSettings = new()
+    {
+        ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new CamelCaseNamingStrategy()
+        },
+        NullValueHandling = NullValueHandling.Ignore
+    };
+
+    public string GetWorldPhotos(string worldId, string cursor = null, int limit = 50)
+    {
+        var service = WorldPhotoIndexRuntime.Get(this);
+        var page = service?.GetWorldPhotos(worldId, cursor, limit) ?? new WorldPhotoPage();
+        return JsonConvert.SerializeObject(new
+        {
+            page.Items,
+            page.NextCursor,
+            Status = service?.GetStatus() ?? new WorldPhotoIndexStatus()
+        }, WorldPhotoJsonSettings);
+    }
+
+    public string GetWorldPhotoIndexStatus()
+    {
+        var status = WorldPhotoIndexRuntime.Get(this)?.GetStatus() ?? new WorldPhotoIndexStatus();
+        return JsonConvert.SerializeObject(status, WorldPhotoJsonSettings);
+    }
+
+    public string RequestWorldPhotoThumbnails(string publicTokensJson)
+    {
+        if (string.IsNullOrWhiteSpace(publicTokensJson)
+            || publicTokensJson.Length > MaximumWorldPhotoThumbnailRequestJsonLength)
+        {
+            return JsonConvert.SerializeObject(Array.Empty<WorldPhotoThumbnailRequestResult>(), WorldPhotoJsonSettings);
+        }
+        var tokens = JsonConvert.DeserializeObject<List<string>>(publicTokensJson) ?? new List<string>();
+        if (tokens.Count > MaximumWorldPhotoThumbnailRequestCount)
+            tokens.RemoveRange(MaximumWorldPhotoThumbnailRequestCount, tokens.Count - MaximumWorldPhotoThumbnailRequestCount);
+        var results = WorldPhotoIndexRuntime.Get(this)?.RequestThumbnails(tokens)
+            ?? Array.Empty<WorldPhotoThumbnailRequestResult>();
+        return JsonConvert.SerializeObject(results, WorldPhotoJsonSettings);
+    }
+
+    public bool RebuildWorldPhotoIndex()
+    {
+        var service = WorldPhotoIndexRuntime.Get(this);
+        if (service == null)
+            return false;
+        service.Rebuild();
+        return true;
+    }
+
+    public bool OpenIndexedWorldPhoto(string publicToken)
+    {
+        return WorldPhotoIndexRuntime.Get(this)?.OpenIndexedPhoto(publicToken) == true;
+    }
 
     public string GetExtraScreenshotData(string path, bool carouselCache)
     {
@@ -138,6 +197,7 @@ public partial class AppApi
         try
         {
             ScreenshotHelper.DeleteTextMetadata(path, true);
+            WorldPhotoIndexRuntime.Enqueue(path);
             return true;
         }
         catch (Exception ex)
@@ -159,6 +219,7 @@ public partial class AppApi
             try
             {
                 ScreenshotHelper.DeleteTextMetadata(file, true);
+                WorldPhotoIndexRuntime.Enqueue(file);
             }
             catch (Exception ex)
             {

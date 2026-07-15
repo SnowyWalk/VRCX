@@ -238,6 +238,7 @@ namespace VRCX
             IPCServer.Instance.Init();
             SQLite.Instance.Init();
             AppApiInstance = new AppApiCef();
+            AppApiInstance.Init();
 
             ProcessMonitor.Instance.Init();
             Discord.Instance.Init();
@@ -250,6 +251,7 @@ namespace VRCX
             Application.Run(new MainForm());
 
             logger.Info("{0} Exiting...", Version);
+            AppApiInstance.Exit();
             WebApi.Instance.SaveCookies();
             OverlayServer.Instance.Exit();
             CefService.Instance.Exit();

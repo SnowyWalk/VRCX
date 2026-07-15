@@ -991,6 +991,7 @@ function disposeOverlay() {
 app.on('before-quit', function () {
     // Mark it as a quitting state to make macOS Dock's "Quit" action take effect.
     appIsQuitting = true;
+    interopApi.getDotNetObject('AppApiElectron').Exit();
     disposeOverlay();
     destroyTray();
 });

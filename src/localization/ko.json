@@ -644,6 +644,18 @@
                 "refresh_instance_info": "인스턴스 정보 새로고침",
                 "instance_creator": "방파개"
             },
+            "photos": {
+                "header": "사진",
+                "count": "색인된 사진 {count}장",
+                "indexing": "사진 색인 중… {processed} / {discovered}",
+                "empty": "이 월드 ID가 정확히 기록된 PNG 사진이 없습니다.",
+                "error": "색인된 사진을 불러오지 못했습니다.",
+                "retry": "다시 시도",
+                "refresh": "새로고침",
+                "rebuild": "색인 재구축",
+                "rebuild_confirm": "전체 사진 색인을 재구축할까요? 사진이 많으면 시간이 걸릴 수 있습니다.",
+                "open_hint": "더블클릭하여 사진 열기"
+            },
             "info": {
                 "header": "정보",
                 "memo": "VRCX 메모",
