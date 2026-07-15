@@ -54,6 +54,7 @@ namespace VRCX
             }
 
             ScreenshotHelper.WriteVRCXMetadata(metadataString, path);
+            WorldPhotoIndexRuntime.Enqueue(path);
 
             return path;
         }

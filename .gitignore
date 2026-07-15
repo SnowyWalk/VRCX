@@ -10,6 +10,12 @@ Installer/version_define.nsh
 bun.lock
 
 .env.sentry-build-plugin
+.dotnet-home/
+.nuget/
+Dotnet.Tests/bin/
+Dotnet.Tests/obj/
+Dotnet.Reader.Tests/bin/
+Dotnet.Reader.Tests/obj/
 AGENTS.md
 AI_GUIDE.md
 CLAUDE.md

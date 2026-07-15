@@ -305,6 +305,15 @@ declare global {
             carouselCache: boolean
         ): Promise<string>;
         GetScreenshotMetadata(path: string): Promise<string>;
+        GetWorldPhotos(
+            worldId: string,
+            cursor?: string | null,
+            limit?: number
+        ): Promise<string>;
+        GetWorldPhotoIndexStatus(): Promise<string>;
+        RequestWorldPhotoThumbnails(publicTokensJson: string): Promise<string>;
+        RebuildWorldPhotoIndex(): Promise<boolean>;
+        OpenIndexedWorldPhoto(publicToken: string): Promise<boolean>;
         FindScreenshotsBySearch(
             searchQuery: string,
             searchType?: number

@@ -119,7 +119,7 @@ namespace VRCX
         public static ScreenshotMetadata? GetScreenshotMetadata(string path, bool includeJSON = false)
         {
             // Early return if file doesn't exist, or isn't a PNG(Check both extension and file header)
-            if (!File.Exists(path) || !path.EndsWith(".png"))
+            if (!File.Exists(path) || !path.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                 return null;
 
             List<string> metadata = ReadTextMetadata(path);

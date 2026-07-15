@@ -324,6 +324,11 @@
                 <template #Instances>
                     <WorldDialogInstancesTab />
                 </template>
+                <template #Photos>
+                    <WorldDialogPhotosTab
+                        :world-id="worldDialog.id"
+                        :active="worldDialog.visible && worldDialog.activeTab === 'Photos'" />
+                </template>
                 <template #Info>
                     <WorldDialogInfoTab />
                 </template>
@@ -428,6 +433,7 @@
     import ImageCropDialog from '../ImageCropDialog.vue';
     import WorldDialogInfoTab from './WorldDialogInfoTab.vue';
     import WorldDialogInstancesTab from './WorldDialogInstancesTab.vue';
+    import WorldDialogPhotosTab from './WorldDialogPhotosTab.vue';
     import { showUserDialog } from '../../../coordinators/userCoordinator';
 
     import NewInstanceDialog from '../NewInstanceDialog/NewInstanceDialog.vue';
@@ -488,6 +494,7 @@
 
     const worldDialogTabs = computed(() => [
         { value: 'Instances', label: t('dialog.world.instances.header') },
+        { value: 'Photos', label: t('dialog.world.photos.header') },
         { value: 'Info', label: t('dialog.world.info.header') },
         { value: 'JSON', label: t('dialog.world.json.header') }
     ]);

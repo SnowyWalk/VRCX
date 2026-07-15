@@ -17,6 +17,12 @@ namespace VRCX
 
         public void Init()
         {
+            WorldPhotoIndexRuntime.Start(this);
+        }
+
+        public void Exit()
+        {
+            WorldPhotoIndexRuntime.Stop();
         }
 
         public JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
